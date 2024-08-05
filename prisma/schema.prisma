@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// enum
+enum EStatus {
+  actived
+  unactive
+}
+
+// model
+model Location {
+  location_id   Int      @id @default(autoincrement())
+  location_name String
+  organization  String
+  status        EStatus  @default(actived)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @default(now()) @map("updated_at")
+  device        Device[]
+
+  @@map("location")
+}
+
+model Device {
+  id          String   @id
+  type        String
+  serial      String
+  status      EStatus  @default(actived)
+  description String
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @map("updated_at")
+  locationId  Int      @map("location_id")
+  location    Location @relation(fields: [locationId], references: [location_id], onDelete: Cascade)
+
+  @@map("device")
+}
